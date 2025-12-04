@@ -99,7 +99,7 @@ export default function RssFeed() {
 
       return { previousChannels };
     },
-    onError: (err, channelId, context) => {
+    onError: (_err, _channelId, context) => {
       // If mutation fails, rollback
       if (context?.previousChannels) {
         queryClient.setQueryData(['subscribed-channels'], context.previousChannels);
@@ -130,7 +130,7 @@ export default function RssFeed() {
 
       return { previousChannels, channelId };
     },
-    onError: (err, channelId, context) => {
+    onError: (_err, _channelId, context) => {
       // If mutation fails, rollback
       if (context?.previousChannels) {
         queryClient.setQueryData(['subscribed-channels'], context.previousChannels);
