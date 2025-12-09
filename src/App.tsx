@@ -1,15 +1,15 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import Layout from './components/Layout';
-import ProtectedRoute from './components/ProtectedRoute';
-import Login from './pages/Login';
-import News from './pages/News';
-import RssFeed from './pages/RssFeed';
-import Search from './pages/Search';
-import Folders from './pages/Folders';
-import Settings from './pages/Settings';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./pages/Login";
+import News from "./pages/News";
+import RssFeed from "./pages/RssFeed";
+import Search from "./pages/Search";
+import Folders from "./pages/Folders";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,52 +23,52 @@ const queryClient = new QueryClient({
 
 const theme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: "dark",
     primary: {
-      main: '#ff8c00',
-      light: '#ffa500',
-      dark: '#d97700',
+      main: "#ff8c00",
+      light: "#ffa500",
+      dark: "#d97700",
     },
     secondary: {
-      main: '#ff6b35',
-      light: '#ff8554',
-      dark: '#e55a2b',
+      main: "#ff6b35",
+      light: "#ff8554",
+      dark: "#e55a2b",
     },
     background: {
-      default: '#0a0a0a',
-      paper: '#1a1a1a',
+      default: "#0a0a0a",
+      paper: "#1a1a1a",
     },
     text: {
-      primary: '#ff8c00',
-      secondary: '#808080',
+      primary: "#ff8c00",
+      secondary: "#808080",
     },
-    divider: '#333333',
+    divider: "#333333",
   },
   typography: {
     fontFamily: '"Courier New", Courier, monospace',
     h1: {
       fontWeight: 700,
-      textTransform: 'uppercase',
+      textTransform: "uppercase",
     },
     h2: {
       fontWeight: 700,
-      textTransform: 'uppercase',
+      textTransform: "uppercase",
     },
     h3: {
       fontWeight: 700,
-      textTransform: 'uppercase',
+      textTransform: "uppercase",
     },
     h4: {
       fontWeight: 700,
-      textTransform: 'uppercase',
+      textTransform: "uppercase",
     },
     h5: {
       fontWeight: 700,
-      textTransform: 'uppercase',
+      textTransform: "uppercase",
     },
     h6: {
       fontWeight: 700,
-      textTransform: 'uppercase',
+      textTransform: "uppercase",
     },
   },
   shape: {
@@ -78,14 +78,14 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          textTransform: 'uppercase',
+          textTransform: "uppercase",
           fontWeight: 700,
           borderRadius: 0,
-          boxShadow: 'none',
-          border: '2px solid #ff8c00',
-          '&:hover': {
-            boxShadow: '4px 4px 0px #ff8c00',
-            transform: 'translate(-2px, -2px)',
+          boxShadow: "none",
+          border: "2px solid #ff8c00",
+          "&:hover": {
+            boxShadow: "4px 4px 0px #ff8c00",
+            transform: "translate(-2px, -2px)",
           },
         },
       },
@@ -94,11 +94,11 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 0,
-          boxShadow: 'none',
-          border: '2px solid #333',
-          backgroundImage: 'radial-gradient(circle, #222 1px, transparent 1px)',
-          backgroundSize: '20px 20px',
-          backgroundColor: '#1a1a1a',
+          boxShadow: "none",
+          border: "2px solid #333",
+          backgroundImage: "radial-gradient(circle, #222 1px, transparent 1px)",
+          backgroundSize: "20px 20px",
+          backgroundColor: "#1a1a1a",
         },
       },
     },
@@ -106,7 +106,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 0,
-          border: '2px solid #333',
+          border: "2px solid #333",
         },
       },
     },
@@ -114,9 +114,9 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 0,
-          border: '1px solid #ff8c00',
-          backgroundColor: '#0a0a0a',
-          color: '#ff8c00',
+          border: "1px solid #ff8c00",
+          backgroundColor: "#0a0a0a",
+          color: "#ff8c00",
           fontFamily: '"Courier New", Courier, monospace',
           fontWeight: 700,
         },
@@ -126,14 +126,14 @@ const theme = createTheme({
 });
 
 function App() {
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <BrowserRouter>
+          <BrowserRouter basename="/omninews">
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route
