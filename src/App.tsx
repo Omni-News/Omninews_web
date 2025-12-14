@@ -3,8 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Layout from "./components/Layout";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Login from "./pages/Login";
 import News from "./pages/News";
 import RssFeed from "./pages/RssFeed";
 import Search from "./pages/Search";
@@ -134,21 +132,15 @@ function App() {
           <CssBaseline />
           <BrowserRouter basename="/omninews">
             <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Layout />
-                  </ProtectedRoute>
-                }
-              >
+              <Route path="/" element={<Layout />}>
                 <Route index element={<Navigate to="/news" replace />} />
                 <Route path="news" element={<News />} />
                 <Route path="rss" element={<RssFeed />} />
                 <Route path="search" element={<Search />} />
                 <Route path="folders" element={<Folders />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="login" element={<Navigate to="/news" replace />} />
+                <Route path="*" element={<Navigate to="/news" replace />} />
               </Route>
             </Routes>
           </BrowserRouter>

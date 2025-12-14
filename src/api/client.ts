@@ -53,16 +53,19 @@ apiClient.interceptors.response.use(
 
           return apiClient(originalRequest);
         } catch (refreshError) {
-          // Refresh failed, clear storage and redirect to login
+          // Refresh failed, clear storage
           localStorage.removeItem("access_token");
           localStorage.removeItem("refresh_token");
           localStorage.removeItem("user_email");
-          window.location.href = "/omninews/login";
+          localStorage.removeItem("omninews-auth");
           return Promise.reject(refreshError);
         }
       } else {
-        // No refresh token, redirect to login
-        window.location.href = "/omninews/login";
+        // No refresh token, clear storage
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user_email");
+        localStorage.removeItem("omninews-auth");
       }
     }
 
