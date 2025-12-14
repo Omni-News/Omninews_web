@@ -29,6 +29,7 @@ import { newsApi } from '../api/endpoints/news';
 import { rssApi } from '../api/endpoints/rss';
 import { subscriptionApi } from '../api/endpoints/subscription';
 import { searchApi } from '../api/endpoints/search';
+import { useAuthStore } from '../store/authStore';
 import type { NewsCategory, NewsItem, RssChannel, RssItem } from '../types';
 
 const categories: NewsCategory[] = ['IT/과학', '정치', '경제', '사회', '생활/문화', '세계'];
@@ -185,12 +186,15 @@ export default function News() {
   const [searchTab, setSearchTab] = useState(0);
   const queryClient = useQueryClient();
 
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
   const { data: channels } = useQuery({
     queryKey: ['subscribed-channels'],
     queryFn: async () => {
       const { data } = await subscriptionApi.getChannels();
       return data || [];
     },
+    enabled: isAuthenticated,
   });
 
   // Fetch recommended channels
@@ -507,12 +511,75 @@ export default function News() {
               <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 700, color: '#ff8c00', textTransform: 'uppercase', letterSpacing: '2px' }}>
                 ▶ My RSS
               </Typography>
-              <IconButton size="small" onClick={() => setAddDialogOpen(true)}>
-                <Add fontSize="small" />
-              </IconButton>
+              {isAuthenticated && (
+                <IconButton size="small" onClick={() => setAddDialogOpen(true)}>
+                  <Add fontSize="small" />
+                </IconButton>
+              )}
             </Box>
 
-            {!channels || channels.length === 0 ? (
+            {!isAuthenticated ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flex: 1,
+                  gap: 2,
+                  p: 3,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontSize: '1rem',
+                    fontWeight: 700,
+                    color: '#ff8c00',
+                    textAlign: 'center',
+                    fontFamily: '"Courier New", Courier, monospace',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  ▓ LOGIN REQUIRED ▓
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: '0.85rem',
+                    color: '#808080',
+                    textAlign: 'center',
+                    lineHeight: 1.6,
+                  }}
+                >
+                  MY RSS 기능을 사용하려면
+                  <br />
+                  로그인이 필요합니다
+                </Typography>
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 2,
+                    border: '2px solid rgba(255, 140, 0, 0.3)',
+                    backgroundColor: 'rgba(255, 140, 0, 0.05)',
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontSize: '0.75rem',
+                      color: '#808080',
+                      textAlign: 'center',
+                      display: 'block',
+                    }}
+                  >
+                    상단의 Login 버튼을 클릭하여
+                    <br />
+                    로그인 후 이용해주세요
+                  </Typography>
+                </Box>
+              </Box>
+            ) : !channels || channels.length === 0 ? (
               <Alert severity="info" sx={{ border: 'none', fontSize: '0.8rem' }}>
                 구독한 RSS가 없습니다
               </Alert>

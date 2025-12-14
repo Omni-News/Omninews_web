@@ -9,8 +9,11 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Button,
 } from '@mui/material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuthStore } from '../store/authStore';
+import LoginModal from './LoginModal';
 
 const menuItems = [
   { text: 'Dashboard', path: '/news' },
@@ -22,6 +25,25 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+  const { isAuthenticated, user, clearUser, setUser } = useAuthStore();
+
+  // Check localStorage on mount for existing session
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    const email = localStorage.getItem('user_email');
+
+    // If we have tokens but authStore shows not authenticated, sync the state
+    if (token && email && !isAuthenticated) {
+      setUser({ email, displayName: email.split('@')[0] });
+    }
+
+    // If authStore shows authenticated but no tokens, clear the state
+    if (isAuthenticated && !token) {
+      clearUser();
+    }
+  }, [isAuthenticated, setUser, clearUser]);
 
   const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -33,6 +55,14 @@ export default function Layout() {
 
   const handleNavigation = (path: string) => {
     navigate(path);
+    handleClose();
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_email');
+    clearUser();
     handleClose();
   };
 
@@ -88,39 +118,75 @@ export default function Layout() {
               ))}
             </Box>
           </Box>
-          <IconButton onClick={handleProfileClick} size="small">
-            <Avatar sx={{
-              width: 32,
-              height: 32,
-              bgcolor: '#0a0a0a',
-              border: '2px solid #ff8c00',
-              color: '#ff8c00',
-              fontWeight: 700,
-              fontFamily: '"Courier New", Courier, monospace',
-            }}>U</Avatar>
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-          >
-            {menuItems.map((item) => (
-              <MenuItem key={item.path} onClick={() => handleNavigation(item.path)}>
-                {item.text}
-              </MenuItem>
-            ))}
-            <MenuItem onClick={() => { localStorage.removeItem('token'); navigate('/login'); }}>
-              Logout
-            </MenuItem>
-          </Menu>
+          {isAuthenticated ? (
+            <>
+              <IconButton onClick={handleProfileClick} size="small">
+                <Avatar
+                  src={user?.photoUrl}
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    bgcolor: '#0a0a0a',
+                    border: '2px solid #ff8c00',
+                    color: '#ff8c00',
+                    fontWeight: 700,
+                    fontFamily: '"Courier New", Courier, monospace',
+                  }}
+                >
+                  {user?.displayName?.[0]?.toUpperCase() || 'U'}
+                </Avatar>
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                PaperProps={{
+                  sx: {
+                    borderRadius: 0,
+                    border: '2px solid #ff8c00',
+                    backgroundColor: '#1a1a1a',
+                  },
+                }}
+              >
+                <MenuItem disabled sx={{ opacity: 1, fontWeight: 700, color: '#ff8c00' }}>
+                  {user?.displayName || user?.email}
+                </MenuItem>
+                {menuItems.map((item) => (
+                  <MenuItem key={item.path} onClick={() => handleNavigation(item.path)}>
+                    {item.text}
+                  </MenuItem>
+                ))}
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Button
+              variant="outlined"
+              onClick={() => setLoginModalOpen(true)}
+              sx={{
+                borderColor: '#ff8c00',
+                color: '#ff8c00',
+                fontWeight: 700,
+                fontFamily: '"Courier New", Courier, monospace',
+                textTransform: 'uppercase',
+                fontSize: '0.85rem',
+                '&:hover': {
+                  borderColor: '#ff8c00',
+                  backgroundColor: 'rgba(255, 140, 0, 0.1)',
+                },
+              }}
+            >
+              Login
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
 
@@ -129,6 +195,8 @@ export default function Layout() {
           <Outlet />
         </Container>
       </Box>
+
+      <LoginModal open={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
     </Box>
   );
 }

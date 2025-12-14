@@ -28,6 +28,7 @@ import {
 import { Add, Delete, Star } from '@mui/icons-material';
 import { rssApi } from '../api/endpoints/rss';
 import { subscriptionApi } from '../api/endpoints/subscription';
+import { useAuthStore } from '../store/authStore';
 import type { RssChannel, RssItem } from '../types';
 
 export default function RssFeed() {
@@ -38,6 +39,8 @@ export default function RssFeed() {
   const [rssUrl, setRssUrl] = useState('');
   const queryClient = useQueryClient();
 
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
   // Fetch subscribed channels
   const { data: channels, isLoading: channelsLoading } = useQuery({
     queryKey: ['subscribed-channels'],
@@ -45,6 +48,7 @@ export default function RssFeed() {
       const { data } = await subscriptionApi.getChannels();
       return data;
     },
+    enabled: isAuthenticated,
     staleTime: 30000, // Keep data fresh for 30 seconds
     refetchOnMount: false, // Don't refetch on mount if data exists
   });
@@ -168,6 +172,70 @@ export default function RssFeed() {
     setSelectedChannel(channelId);
     setPage(1);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 'calc(100vh - 200px)',
+          gap: 3,
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            color: '#ff8c00',
+            fontFamily: '"Courier New", Courier, monospace',
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+          }}
+        >
+          ▓▓▓ LOGIN REQUIRED ▓▓▓
+        </Typography>
+        <Typography
+          variant="h6"
+          sx={{
+            fontSize: '1.1rem',
+            color: '#808080',
+            textAlign: 'center',
+            lineHeight: 1.8,
+          }}
+        >
+          RSS Feed 관리 기능을 사용하려면
+          <br />
+          로그인이 필요합니다
+        </Typography>
+        <Box
+          sx={{
+            mt: 2,
+            p: 3,
+            border: '2px solid rgba(255, 140, 0, 0.3)',
+            backgroundColor: 'rgba(255, 140, 0, 0.05)',
+            maxWidth: 400,
+          }}
+        >
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: '0.9rem',
+              color: '#808080',
+              textAlign: 'center',
+              lineHeight: 1.8,
+            }}
+          >
+            상단의 Login 버튼을 클릭하여
+            <br />
+            로그인 후 이용해주세요
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box>
