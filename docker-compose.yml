@@ -6,14 +6,22 @@ services:
     container_name: omninews_web
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - "127.0.0.1:3000:80"
     environment:
       - VITE_API_BASE_URL=${VITE_API_BASE_URL}
       - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1/",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
