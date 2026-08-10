@@ -344,20 +344,6 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
             {loading ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
-
-        <Box
-          sx={{
-            mt: 3,
-            p: 2,
-            background: 'rgba(255, 140, 0, 0.1)',
-            border: '2px solid rgba(255, 140, 0, 0.3)',
-            borderRadius: 0,
-          }}
-        >
-          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', lineHeight: 1.6 }}>
-            Demo credentials available for reviewers
-          </Typography>
-        </Box>
       </Box>
     </Dialog>
   );
