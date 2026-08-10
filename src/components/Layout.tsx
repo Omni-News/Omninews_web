@@ -25,7 +25,9 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(
+    () => localStorage.getItem('access_token') === null
+  );
 
   const { isAuthenticated, user, clearUser, setUser } = useAuthStore();
 

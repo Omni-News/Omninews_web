@@ -6,12 +6,14 @@ import {
   Button,
   Typography,
   Alert,
+  Link,
   InputAdornment,
   IconButton,
   Divider,
 } from '@mui/material';
 import { Visibility, VisibilityOff, EmailOutlined, LockOutlined } from '@mui/icons-material';
 import { useGoogleLogin } from '@react-oauth/google';
+import { isAxiosError } from 'axios';
 import { authApi } from '../api/endpoints/auth';
 import { useAuthStore } from '../store/authStore';
 
@@ -19,6 +21,19 @@ interface LoginModalProps {
   open: boolean;
   onClose: () => void;
 }
+
+const appStoreUrl = 'https://apps.apple.com/kr/app/omninews/id6746567181';
+const googlePlayUrl =
+  'https://play.google.com/store/apps/details?id=com.kdh.omninews';
+
+interface ApiErrorResponse {
+  message?: string;
+}
+
+const getApiErrorMessage = (error: unknown, fallback: string): string => {
+  if (!isAxiosError<ApiErrorResponse>(error)) return fallback;
+  return error.response?.data?.message || fallback;
+};
 
 export default function LoginModal({ open, onClose }: LoginModalProps) {
   const setUser = useAuthStore((state) => state.setUser);
@@ -53,8 +68,8 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
 
       // Close modal
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+    } catch (error: unknown) {
+      setError(getApiErrorMessage(error, 'Login failed. Please check your credentials.'));
     } finally {
       setLoading(false);
     }
@@ -62,13 +77,11 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
 
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      console.log('Google OAuth success, got access token');
       setError('');
       setLoading(true);
 
       try {
         // Fetch user info from Google
-        console.log('Fetching user info from Google...');
         const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: {
             Authorization: `Bearer ${tokenResponse.access_token}`,
@@ -76,15 +89,12 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
         });
 
         if (!userInfoResponse.ok) {
-          console.error('Failed to fetch user info, status:', userInfoResponse.status);
           throw new Error('Failed to fetch user info');
         }
 
         const userInfo = await userInfoResponse.json();
-        console.log('Got user info:', userInfo.email);
 
         // Login with backend server
-        console.log('Calling backend login API...');
         const { data } = await authApi.login({
           user_email: userInfo.email,
           user_display_name: userInfo.name,
@@ -93,8 +103,6 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
           user_social_provider_id: userInfo.sub,
           user_platform: 'web',
         });
-
-        console.log('Backend login successful');
 
         // Store tokens
         localStorage.setItem('access_token', data.access_token);
@@ -110,21 +118,13 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
 
         // Close modal
         onClose();
-      } catch (err: any) {
-        console.error('Google login error:', err);
-        console.error('Error details:', {
-          message: err.message,
-          response: err.response,
-          status: err.response?.status,
-          data: err.response?.data
-        });
-        setError(err.response?.data?.message || 'Google login failed. Please try again.');
+      } catch (error: unknown) {
+        setError(getApiErrorMessage(error, 'Google login failed. Please try again.'));
       } finally {
         setLoading(false);
       }
     },
-    onError: (error) => {
-      console.error('Google OAuth error:', error);
+    onError: () => {
       setError('Google login was cancelled or failed.');
     },
   });
@@ -178,6 +178,29 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
             {error}
           </Alert>
         )}
+
+        <Alert
+          severity="info"
+          sx={{
+            mb: 3,
+            borderRadius: 0,
+            border: '2px solid #1976d2',
+            backgroundColor: '#1a1a1a',
+            color: '#e0e0e0',
+            '& .MuiAlert-icon': { color: '#64b5f6' },
+          }}
+        >
+          OmniNews 웹은 모바일 앱에서 Google 계정으로 가입한 뒤 이용할 수 있습니다.
+          계정이 없다면{' '}
+          <Link href={appStoreUrl} target="_blank" rel="noopener noreferrer">
+            App Store
+          </Link>{' '}
+          또는{' '}
+          <Link href={googlePlayUrl} target="_blank" rel="noopener noreferrer">
+            Google Play
+          </Link>
+          에서 앱을 설치하고 먼저 회원가입해 주세요.
+        </Alert>
 
         <Button
           variant="contained"

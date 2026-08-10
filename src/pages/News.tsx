@@ -445,10 +445,11 @@ export default function News() {
         </Typography>
         <TextField
           size="small"
-          placeholder="SEARCH..."
+          placeholder={isAuthenticated ? 'SEARCH...' : 'LOGIN REQUIRED'}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          disabled={!isAuthenticated}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -482,7 +483,7 @@ export default function News() {
         />
         <Button
           onClick={handleSearch}
-          disabled={!searchQuery.trim()}
+          disabled={!isAuthenticated || !searchQuery.trim()}
           sx={{
             minWidth: 100,
             bgcolor: '#0a0a0a',
@@ -695,9 +696,38 @@ export default function News() {
         </Card>
 
         {/* News Category Cards */}
-        {categories.map((category) => (
-          <NewsCard key={category} category={category} />
-        ))}
+        {isAuthenticated ? (
+          categories.map((category) => <NewsCard key={category} category={category} />)
+        ) : (
+          <Card
+            sx={{
+              minWidth: 320,
+              maxWidth: 480,
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <CardContent>
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 2,
+                  color: '#ff8c00',
+                  textAlign: 'center',
+                  fontFamily: '"Courier New", Courier, monospace',
+                  fontWeight: 700,
+                }}
+              >
+                ▓ LOGIN REQUIRED ▓
+              </Typography>
+              <Typography sx={{ color: '#808080', textAlign: 'center', lineHeight: 1.7 }}>
+                뉴스와 맞춤형 RSS를 보려면 로그인해 주세요.
+              </Typography>
+            </CardContent>
+          </Card>
+        )}
       </Box>
 
       {/* Add RSS Dialog */}
